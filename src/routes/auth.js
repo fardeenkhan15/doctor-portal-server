@@ -1,9 +1,10 @@
 const express = require('express');
-const { register, login } = require('../controllers/authController');
-
+const { registerDoctor, registerPatient, loginDoctor, loginPatient } = require('../controllers/authController');
 const router = express.Router();
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register/doctor', registerDoctor);
+router.post('/register/patient', registerPatient);
+router.post('/login/doctor', loginDoctor);
+router.post('/login/patient', loginPatient);
 
 module.exports = router;

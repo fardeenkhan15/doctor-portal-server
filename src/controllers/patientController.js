@@ -1,14 +1,25 @@
-const Patient = require('../models/Patient');
-const PDF = require('../models/PDF');
+// src/controllers/patientController.js
 
-const getPDFs = async (req, res) => {
-  const { patientId } = req.params;
+const Patient = require('../models/Patient');
+
+exports.getPatients = async (req, res) => {
   try {
-    const pdfs = await PDF.findAll({ where: { patientId } });
-    res.send({ pdfs });
+    const patients = await Patient.findAll();
+    res.status(200).json(patients);
   } catch (error) {
-    res.status(500).send({ error: 'Error fetching PDFs' });
+    res.status(500).json({ message: 'Error fetching patients', error });
   }
 };
 
-module.exports = { getPDFs };
+exports.getPatientById = async (req, res) => {
+  try {
+    const patient = await Patient.findByPk(req.params.id);
+    if (patient) {
+      res.status(200).json(patient);
+    } else {
+      res.status(404).json({ message: 'Patient not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching patient', error });
+  }
+};

@@ -1,9 +1,10 @@
 const express = require('express');
-const { getPDFs } = require('../controllers/patientController');
+const { getPatients, getPatientById } = require('../controllers/patientController');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/:patientId/pdfs', auth, getPDFs);
+router.get('/', auth, getPatients);
+router.get('/:id', auth, getPatientById);
 
 module.exports = router;

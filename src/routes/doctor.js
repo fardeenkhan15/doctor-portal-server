@@ -1,3 +1,5 @@
+// src/routes/doctor.js
+
 const express = require('express');
 const { linkPatient, uploadPDF } = require('../controllers/doctorController');
 const auth = require('../middleware/auth');

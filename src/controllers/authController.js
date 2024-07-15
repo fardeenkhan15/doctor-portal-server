@@ -2,39 +2,52 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
-const dotenv = require('dotenv');
 
-dotenv.config();
-
-const register = async (req, res) => {
-  const { role, name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 8);
+exports.registerDoctor = async (req, res) => {
   try {
-    const user =
-      role === 'doctor'
-        ? await Doctor.create({ name, email, password: hashedPassword })
-        : await Patient.create({ name, email, password: hashedPassword });
-    const token = jwt.sign({ id: user.id, role }, process.env.JWT_SECRET);
-    res.status(201).send({ user, token });
+    const { name, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const doctor = await Doctor.create({ name, email, password: hashedPassword });
+    res.status(201).json(doctor);
   } catch (error) {
-    res.status(400).send({ error: 'Error registering user' });
+    res.status(500).json({ message: 'Registration failed', error });
   }
 };
 
-const login = async (req, res) => {
-  const { role, email, password } = req.body;
+exports.registerPatient = async (req, res) => {
   try {
-    const user = await (role === 'doctor'
-      ? Doctor.findOne({ where: { email } })
-      : Patient.findOne({ where: { email } }));
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(400).send({ error: 'Invalid login credentials' });
+    const { name, email } = req.body;
+    const patient = await Patient.create({ name, email });
+    res.status(201).json(patient);
+  } catch (error) {
+    res.status(500).json({ message: 'Registration failed', error });
+  }
+};
+
+exports.loginDoctor = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const doctor = await Doctor.findOne({ where: { email } });
+    if (!doctor || !(await bcrypt.compare(password, doctor.password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
-    const token = jwt.sign({ id: user.id, role }, process.env.JWT_SECRET);
-    res.send({ user, token });
+    const token = jwt.sign({ doctorId: doctor.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token, doctorId: doctor.id });
   } catch (error) {
-    res.status(500).send({ error: 'Error logging in' });
+    res.status(500).json({ message: 'Login failed', error });
   }
 };
 
-module.exports = { register, login };
+exports.loginPatient = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const patient = await Patient.findOne({ where: { email } });
+    if (!patient) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ patientId: patient.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token, patientId: patient.id });
+  } catch (error) {
+    res.status(500).json({ message: 'Login failed', error });
+  }
+};
