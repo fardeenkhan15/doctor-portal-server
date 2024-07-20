@@ -21,6 +21,17 @@ const Doctor = sequelize.define('Doctor', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  specialty: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
+
+Doctor.associate = (models) => {
+  Doctor.belongsToMany(models.Patient, { 
+    through: 'DoctorPatient',
+    foreignKey: 'DoctorId'
+  });
+};
 
 module.exports = Doctor;

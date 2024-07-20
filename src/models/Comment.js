@@ -1,28 +1,16 @@
-// models/PDF.js
+// models/Comment.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const PDF = sequelize.define('PDF', {
+const Comment = sequelize.define('Comment', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  filePath: {
-    type: DataTypes.STRING,
+  content: {
+    type: DataTypes.TEXT,
     allowNull: false,
-  },
-  uploadDate: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  doctorId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Doctors',
-      key: 'id',
-    },
   },
   patientId: {
     type: DataTypes.INTEGER,
@@ -34,4 +22,4 @@ const PDF = sequelize.define('PDF', {
   },
 });
 
-module.exports = PDF;
+module.exports = Comment;

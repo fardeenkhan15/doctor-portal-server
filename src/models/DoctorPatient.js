@@ -1,8 +1,6 @@
 // models/DoctorPatient.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Doctor = require('./Doctor');
-const Patient = require('./Patient');
 
 const DoctorPatient = sequelize.define('DoctorPatient', {
   id: {
@@ -10,9 +8,27 @@ const DoctorPatient = sequelize.define('DoctorPatient', {
     primaryKey: true,
     autoIncrement: true,
   },
+  DoctorId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Doctors',
+      key: 'id'
+    }
+  },
+  PatientId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Patients',
+      key: 'id'
+    }
+  }
 });
 
-Doctor.belongsToMany(Patient, { through: DoctorPatient });
-Patient.belongsToMany(Doctor, { through: DoctorPatient });
+DoctorPatient.associate = (models) => {
+  DoctorPatient.belongsTo(models.Patient);
+  DoctorPatient.belongsTo(models.Doctor);
+};
 
 module.exports = DoctorPatient;

@@ -1,25 +1,23 @@
-// src/routes/doctor.js
+// src/routes/doctorRoutes.js
 
 const express = require('express');
-const { linkPatient, uploadPDF } = require('../controllers/doctorController');
+const { linkPatient, uploadPDF, getPatientsByDoctor } = require('../controllers/doctorController');
+const { getCommentsByPatientId } = require('../controllers/commentController');
 const auth = require('../middleware/auth');
 const multer = require('multer');
-const multerS3 = require('multer-s3');
-const s3 = require('../config/s3');
-
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.S3_BUCKET_NAME,
-    key: (req, file, cb) => {
-      cb(null, `${Date.now().toString()}-${file.originalname}`);
-    },
-  }),
-});
 
 const router = express.Router();
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit
+  }
+});
+
 router.post('/link-patient', auth, linkPatient);
 router.post('/upload-pdf', auth, upload.single('file'), uploadPDF);
+router.get('/:doctorId/patients', auth, getPatientsByDoctor);
+router.get('/:patientId/comments', auth, getCommentsByPatientId);
 
 module.exports = router;

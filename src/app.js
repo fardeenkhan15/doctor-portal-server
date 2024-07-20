@@ -1,4 +1,6 @@
 require('dotenv').config();
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
 const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/database');
@@ -7,10 +9,25 @@ const doctorRoutes = require('./routes/doctor');
 const patientRoutes = require('./routes/patient');
 const errorHandler = require('./middleware/errorHandler');
 
+// Import your models
+const Doctor = require('./models/Doctor');
+const Patient = require('./models/Patient');
+const DoctorPatient = require('./models/DoctorPatient');
+
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(express.json());
+
+// Set up associations
+Object.values(sequelize.models).forEach((model) => {
+  if (model.associate) {
+    model.associate(sequelize.models);
+  }
+});
 
 app.use('/auth', authRoutes);
 app.use('/doctor', doctorRoutes);
@@ -31,4 +48,4 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer();  
